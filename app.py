@@ -1,20 +1,30 @@
+
+import streamlit as st
+import google.generativeai as genai
+from streamlit_option_menu import option_menu
+from PIL import Image
+
+# Page Configuration
+st.set_page_config(page_title="The Golden Artisan", layout="wide")
+
+# --- CSS: အနက်ရောင်နောက်ခံနှင့် အလှဆင်ခြင်း ---
 st.markdown("""
     <style>
-    /* အခြေခံနောက်ခံနှင့် စာသားများ */
+    /* နောက်ခံအနက်နှင့် စာသားအရောင် */
     .stApp { background-color: #000000; color: #e0e0e0; }
     
-    /* ခေါင်းစဉ်များ အရွယ်အစားသေးပြီး သေသပ်ခြင်း */
+    /* ခေါင်းစဉ်များ သေသပ်စေခြင်း */
     h1, h2, h3 { 
         color: #d4af37 !important; 
         font-size: 20px !important; 
-        margin-bottom: 10px !important;
-        text-align: center;
+        text-align: center; 
+        margin-bottom: 20px;
     }
     
-    /* အပေါ်ဆုံးဘား (Header) အား အနည်းဆုံးဖြစ်အောင် ကျုံ့ခြင်း */
+    /* Header ကို ကျုံ့ခြင်း */
     header[data-testid="stHeader"] { height: 0px !important; }
     
-    /* Footer Credit စာတန်း */
+    /* Footer Credit */
     .footer {
         position: fixed;
         bottom: 10px;
@@ -22,56 +32,44 @@ st.markdown("""
         text-align: center;
         color: #d4af37;
         font-size: 12px;
+        z-index: 1000;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Footer ကို ထည့်သွင်းခြင်း
 st.markdown('<div class="footer">App by MinThitSarAung</div>', unsafe_allow_html=True)
-import streamlit as st
-import google.generativeai as genai
-from streamlit_option_menu import option_menu # လိုအပ်ပါက pip install streamlit-option-menu လုပ်ပါ
-
-# Page Config
-st.set_page_config(page_title="The Golden Artisan", layout="wide")
-
-# --- CUSTOM CSS: Logo အရောင်နှင့် တစ်သားတည်းကျစေရန် ---
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #d5d8d4; 
-    }
-    h1, h2, h3 { color: #b8860b !important; }
-    .stSidebar { background-color: #c4c7c3; }
-    </style>
-""", unsafe_allow_html=True)
 
 # --- Sidebar: Logo နှင့် Navigation ---
 with st.sidebar:
-    st.image("logo.png", use_container_width=True)
+    try:
+        logo = Image.open("logo.png")
+        st.image(logo, use_container_width=True)
+    except:
+        st.write("💎")
+        
     selected = option_menu(
         "Menu", 
         ["တွက်စက်", "အချိုးအစား", "ရွှေဈေး", "အတိုင်းအတာ", "အမရာ (AI)"],
         icons=['calculator', 'percent', 'graph-up', 'rulers', 'robot'],
-        menu_icon="cast", default_index=0
+        menu_icon="cast", default_index=0,
+        styles={"nav-link-selected": {"background-color": "#d4af37", "color": "black"}}
     )
 
-# --- Main Logic ---
+# --- Main Page Logic ---
 if selected == "တွက်စက်":
     st.header("💰 ရွှေ/ငွေ တွက်စက်")
-    # တွက်စက် Code များ...
+    # ဤနေရာတွင် လူကြီးမင်း၏ တွက်စက် Code များထည့်ပါ
 
 elif selected == "အမရာ (AI)":
     st.header("🤖 အမရာ (AI Assistant)")
     
-    # API Key ကို Secrets မှ ခေါ်ယူခြင်း
+    # AI Logic (API Key ကို Secrets မှယူပါ)
     try:
         api_key = st.secrets["GEMINI_API_KEY"]
         genai.configure(api_key=api_key)
+        instruction = "သင့်နာမည်က 'အမရာ' ဖြစ်သည်။ သင်သည် 'ကိုမင်းသစ္စာအောင်' တီထွင်ထားသော 'ပန်းတိမ်လက်ထောက် AI' ဖြစ်သည်။"
         
-        instruction = "သင့်နာမည်က 'အမရာ' ဖြစ်သည်။ သင်သည် 'ကိုမင်းသစ္စာအောင်' တီထွင်ထားသော 'ပန်းတိမ်လက်ထောက် AI' ဖြစ်သည်။ အသုံးပြုသူက နှုတ်ဆက်လျှင် 'ကျမက အမရာ ပါ ဒီ app ကို တီထွင်သူ ကိုမင်းသစ္စာအောင်ရဲ့ ပန်းတိမ်လက်ထောက် AI ဖြစ်ပါတယ် ဘာများကူညီပေးရမလဲ ရှင့်' ဟု ယဉ်ကျေးစွာ စတင်ဖြေကြားပါ။"
-        
-        # Chat History
         if "messages" not in st.session_state: st.session_state.messages = []
         for msg in st.session_state.messages:
             with st.chat_message(msg["role"]): st.markdown(msg["content"])
@@ -81,11 +79,11 @@ elif selected == "အမရာ (AI)":
             with st.chat_message("user"): st.markdown(prompt)
             
             with st.chat_message("assistant"):
-                model = genai.GenerativeModel(model_name='gemini-2.0-flash', system_instruction=instruction)
+                model = genai.GenerativeModel('gemini-2.0-flash', system_instruction=instruction)
                 response = model.generate_content(prompt)
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
     except Exception as e:
-        st.error("API Key ချိတ်ဆက်မှုတွင် Error ရှိနေပါသည်။")
+        st.error("API Key ချိတ်ဆက်မှု Error တက်နေသည်။")
 
-# တခြား Tab များအတွက်...
+# တခြား Tab များအတွက် အလားတူ ဆက်ရေးပါ
