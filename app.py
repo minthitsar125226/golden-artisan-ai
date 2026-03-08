@@ -42,44 +42,59 @@ with tab4:
         total = b_inch + (b_pe / 16)
         st.write(f"အချင်း: {total:.2f} လက်မ")
 
-# --- Tab 5: AI လက်ထောက် (အပြီးသတ် အချောသတ်ဗားရှင်း) ---
+# --- Tab 5: AI လက်ထောက် (Smart Model Switching System) ---
 with tab5:
-    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI")
+    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Smart Mode)")
     api_key = st.sidebar.text_input("Gemini API Key ထည့်ပါ", type="password")
     
     if api_key:
         try:
             genai.configure(api_key=api_key)
             
-            # လူကြီးမင်းရဲ့ List ထဲမှာပါတဲ့ နာမည်အမှန်ကို ပြောင်းလဲအသုံးပြုထားပါတယ်
-            model = genai.GenerativeModel('gemini-2.0-flash') 
+            # အသုံးပြုမည့် Model စာရင်း (ဦးစားပေးအလိုက်)
+            available_models = [
+                'gemini-2.0-flash', 
+                'gemini-2.0-flash-lite', 
+                'gemini-1.5-flash-latest',
+                'gemini-pro-latest'
+            ]
             
             if "messages" not in st.session_state:
                 st.session_state.messages = []
             
-            # Chat History ပြသခြင်း
             for msg in st.session_state.messages:
                 with st.chat_message(msg["role"]):
                     st.markdown(msg["content"])
             
-            # အသုံးပြုသူ မေးခွန်းရိုက်သည့်နေရာ
             if prompt := st.chat_input("ရွှေပန်းတိမ်ဆိုင်ရာ ဘာများမေးချင်ပါသလဲ?"):
-                # User ပြောတာကို သိမ်းဆည်းပြသခြင်း
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"):
                     st.markdown(prompt)
                 
-                # AI က အဖြေထုတ်ပေးခြင်း
                 with st.chat_message("assistant"):
-                    response = model.generate_content(prompt)
-                    ai_answer = response.text
-                    st.markdown(ai_answer)
-                
-                # AI အဖြေကို သိမ်းဆည်းခြင်း
-                st.session_state.messages.append({"role": "assistant", "content": ai_answer})
+                    response_text = ""
+                    success = False
+                    
+                    # Model များကို တစ်ခုပြီးတစ်ခု စမ်းသပ်ခြင်း
+                    for model_name in available_models:
+                        try:
+                            model = genai.GenerativeModel(model_name)
+                            response = model.generate_content(prompt)
+                            response_text = response.text
+                            success = True
+                            # အောင်မြင်သွားရင် loop ထဲက ထွက်မယ်
+                            break 
+                        except Exception as e:
+                            # ဒီ Model မရရင် နောက်တစ်ခုကို ဆက်စမ်းမယ်
+                            continue
+                    
+                    if success:
+                        st.markdown(response_text)
+                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+                    else:
+                        st.error("ရနိုင်သမျှ Model အားလုံး Quota ပြည့်နေပါသည်။ ခဏစောင့်ပြီးမှ ပြန်စမ်းပေးပါခင်ဗျာ။")
                 
         except Exception as e:
             st.error(f"Error ဖြစ်နေသည်: {e}")
-            st.info("API Key သို့မဟုတ် Model ဆက်သွယ်မှုတွင် အခက်အခဲရှိနိုင်ပါသည်။")
     else:
         st.warning("Sidebar တွင် API Key အရင်ထည့်ပေးပါ။")
