@@ -1,3 +1,33 @@
+st.markdown("""
+    <style>
+    /* အခြေခံနောက်ခံနှင့် စာသားများ */
+    .stApp { background-color: #000000; color: #e0e0e0; }
+    
+    /* ခေါင်းစဉ်များ အရွယ်အစားသေးပြီး သေသပ်ခြင်း */
+    h1, h2, h3 { 
+        color: #d4af37 !important; 
+        font-size: 20px !important; 
+        margin-bottom: 10px !important;
+        text-align: center;
+    }
+    
+    /* အပေါ်ဆုံးဘား (Header) အား အနည်းဆုံးဖြစ်အောင် ကျုံ့ခြင်း */
+    header[data-testid="stHeader"] { height: 0px !important; }
+    
+    /* Footer Credit စာတန်း */
+    .footer {
+        position: fixed;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+        color: #d4af37;
+        font-size: 12px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Footer ကို ထည့်သွင်းခြင်း
+st.markdown('<div class="footer">App by MinThitSarAung</div>', unsafe_allow_html=True)
 import streamlit as st
 import google.generativeai as genai
 from streamlit_option_menu import option_menu # လိုအပ်ပါက pip install streamlit-option-menu လုပ်ပါ
