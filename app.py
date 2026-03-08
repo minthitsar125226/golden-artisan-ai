@@ -42,7 +42,7 @@ with tab4:
         total = b_inch + (b_pe / 16)
         st.write(f"အချင်း: {total:.2f} လက်မ")
 
-# --- Tab 5: AI လက်ထောက် (Available Models စစ်ဆေးခြင်း) ---
+# --- Tab 5: AI လက်ထောက် (အပြီးသတ် အချောသတ်ဗားရှင်း) ---
 with tab5:
     st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI")
     api_key = st.sidebar.text_input("Gemini API Key ထည့်ပါ", type="password")
@@ -51,20 +51,35 @@ with tab5:
         try:
             genai.configure(api_key=api_key)
             
-            # စမ်းသပ်ရန် ခလုတ်လေး ထည့်ထားပါတယ်
-            if st.button("ရနိုင်သော Model စာရင်းကို ကြည့်မည်"):
-                st.write("လူကြီးမင်း အသုံးပြုနိုင်သော Model များ -")
-                for m in genai.list_models():
-                    if 'generateContent' in m.supported_generation_methods:
-                        # Model နာမည်ကို သိသာအောင် bold နဲ့ ပြပါမယ်
-                        st.code(m.name)
-                st.info("အပေါ်က စာရင်းထဲက နာမည်တစ်ခုခုကို Code ထဲမှာ ပြန်ထည့်သုံးရမှာဖြစ်ပါတယ်")
+            # လူကြီးမင်းရဲ့ List ထဲမှာပါတဲ့ နာမည်အမှန်ကို ပြောင်းလဲအသုံးပြုထားပါတယ်
+            model = genai.GenerativeModel('gemini-2.0-flash') 
             
-            # Chat ပိုင်းကိုတော့ ခဏ ရပ်ထားပေးပါမယ်
-            st.divider()
-            st.write("Model နာမည် အမှန်သိရပြီဆိုမှ Chatting ကို ဆက်စမ်းကြရအောင်ဗျာ။")
+            if "messages" not in st.session_state:
+                st.session_state.messages = []
             
+            # Chat History ပြသခြင်း
+            for msg in st.session_state.messages:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
+            
+            # အသုံးပြုသူ မေးခွန်းရိုက်သည့်နေရာ
+            if prompt := st.chat_input("ရွှေပန်းတိမ်ဆိုင်ရာ ဘာများမေးချင်ပါသလဲ?"):
+                # User ပြောတာကို သိမ်းဆည်းပြသခြင်း
+                st.session_state.messages.append({"role": "user", "content": prompt})
+                with st.chat_message("user"):
+                    st.markdown(prompt)
+                
+                # AI က အဖြေထုတ်ပေးခြင်း
+                with st.chat_message("assistant"):
+                    response = model.generate_content(prompt)
+                    ai_answer = response.text
+                    st.markdown(ai_answer)
+                
+                # AI အဖြေကို သိမ်းဆည်းခြင်း
+                st.session_state.messages.append({"role": "assistant", "content": ai_answer})
+                
         except Exception as e:
             st.error(f"Error ဖြစ်နေသည်: {e}")
+            st.info("API Key သို့မဟုတ် Model ဆက်သွယ်မှုတွင် အခက်အခဲရှိနိုင်ပါသည်။")
     else:
         st.warning("Sidebar တွင် API Key အရင်ထည့်ပေးပါ။")
