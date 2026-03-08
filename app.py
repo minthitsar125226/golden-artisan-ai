@@ -1,7 +1,66 @@
 
 import streamlit as st
 import google.generativeai as genai
+import streamlit as st
+import google.generativeai as genai
+from PIL import Image
 
+# Page Config
+st.set_page_config(page_title="The Golden Artisan", layout="wide")
+
+# --- CUSTOM CSS: Brand အလှဆင်ခြင်း ---
+st.markdown("""
+    <style>
+    /* App နောက်ခံနှင့် စာသားအရောင် */
+    .stApp {
+        background-color: #0e1117;
+        color: #f0f2f6;
+    }
+    
+    /* Header ပိုင်းကို ရွှေရောင်အနားသတ်ခြင်း */
+    header {
+        border-bottom: 2px solid #d4af37;
+    }
+
+    /* Tab နာမည်များကို ရွှေရောင်ပြောင်းခြင်း */
+    .stTabs [data-baseweb="tab-list"] button {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
+        color: #d4af37 !important;
+        border-bottom-color: #d4af37 !important;
+    }
+
+    /* Button များကို ရွှေရောင်ခလုတ်များအဖြစ် ပြောင်းလဲခြင်း */
+    div.stButton > button {
+        background-color: #d4af37 !important;
+        color: #000000 !important;
+        border-radius: 8px !important;
+        border: none !important;
+        width: 100%;
+        transition: 0.3s;
+    }
+    div.stButton > button:hover {
+        background-color: #b8962e !important;
+        transform: scale(1.02);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- Header: Logo နှင့် ဆိုင်နာမည် ---
+col1, col2 = st.columns([1, 5])
+with col1:
+    try:
+        logo = Image.open("logo.png")
+        st.image(logo, width=100)
+    except:
+        st.write("💎") # Logo ရှာမတွေ့ပါက ပြမည့် Icon
+
+with col2:
+    st.title("The Golden Artisan")
+    st.caption("Min Thit Sar Aung - Goldsmith & Jewelry Design")
 # Page Config
 st.set_page_config(page_title="မြန်မာ့ရွှေပန်းတိမ် လက်ထောက်", layout="wide")
 
