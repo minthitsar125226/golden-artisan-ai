@@ -42,31 +42,32 @@ with tab4:
         total = b_inch + (b_pe / 16)
         st.write(f"အချင်း: {total:.2f} လက်မ")
 
-# --- Tab 5: AI လက်ထောက် (Ultimate Multi-Model System) ---
+
+ # --- Tab 5: AI လက်ထောက် (အမရာ - ကိုမင်းသစ္စာအောင်၏ ပန်းတိမ်လက်ထောက်) ---
 with tab5:
-    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Full Access)")
+    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (အမရာ)")
     api_key = st.sidebar.text_input("Gemini API Key ထည့်ပါ", type="password")
     
     if api_key:
         try:
             genai.configure(api_key=api_key)
             
-            # လူကြီးမင်းပေးထားသော စာရင်းထဲမှ အဓိက Model များအားလုံး
+            # AI ကို ကိုယ်ပိုင် Identity ပေးခြင်း (System Instruction)
+            instruction = "သင့်နာမည်က 'အမရာ' ဖြစ်သည်။ သင်သည် 'ကိုမင်းသစ္စာအောင်' တီထွင်ထားသော 'ပန်းတိမ်လက်ထောက် AI' ဖြစ်သည်။ အသုံးပြုသူက နှုတ်ဆက်လျှင် 'ကျမက အမရာ ပါ ဒီ app ကို တီထွင်သူ ကိုမင်းသစ္စာအောင်ရဲ့ ပန်းတိမ်လက်ထောက် AI ဖြစ်ပါတယ် ဘာများကူညီပေးရမလဲ ရှင့်' ဟု ယဉ်ကျေးစွာ စတင်ဖြေကြားပါ။"
+            
             mega_model_list = [
                 'gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview',
-                'gemini-2.0-flash', 'gemini-2.0-flash-lite', 
-                'gemma-3-27b-it', 'gemma-3-12b-it', 'gemma-3-4b-it',
-                'gemini-1.5-flash-latest', 'gemini-pro-latest',
-                'gemini-2.5-flash', 'gemini-2.5-flash-lite'
+                'gemini-2.0-flash', 'gemini-2.0-flash-lite'
             ]
             
             if "messages" not in st.session_state:
+                # ပထမဆုံးအကြိမ်တွင် AI က အလိုအလျောက် နှုတ်ဆက်စေလိုလျှင် အောက်ပါအတိုင်း ထည့်နိုင်ပါသည်
                 st.session_state.messages = []
             
             for msg in st.session_state.messages:
                 with st.chat_message(msg["role"]): st.markdown(msg["content"])
             
-            if prompt := st.chat_input("ရွှေပန်းတိမ်ဆိုင်ရာ မေးခွန်းမေးပါ..."):
+            if prompt := st.chat_input("မေးခွန်းမေးပါ..."):
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"): st.markdown(prompt)
                 
@@ -75,28 +76,26 @@ with tab5:
                     success = False
                     active_model = ""
 
-                    # စာရင်းထဲရှိ Model အားလုံးကို တစ်ခုပြီးတစ်ခု စမ်းသပ်ခြင်း
-                    with st.spinner("အကောင်းဆုံး Model ကို ရှာဖွေနေပါသည်..."):
-                        for m_name in mega_model_list:
-                            try:
-                                model = genai.GenerativeModel(m_name)
-                                response = model.generate_content(prompt)
-                                response_text = response.text
-                                active_model = m_name
-                                success = True
-                                break 
-                            except Exception:
-                                continue 
+                    for m_name in mega_model_list:
+                        try:
+                            # Instruction ကို Model ထဲသို့ ထည့်သွင်းခြင်း
+                            model = genai.GenerativeModel(model_name=m_name, system_instruction=instruction)
+                            response = model.generate_content(prompt)
+                            response_text = response.text
+                            active_model = m_name
+                            success = True
+                            break 
+                        except Exception:
+                            continue 
                     
                     if success:
                         st.markdown(response_text)
                         st.session_state.messages.append({"role": "assistant", "content": response_text})
                         st.caption(f"✅ Active Model: {active_model}")
                     else:
-                        st.error("⚠️ စိတ်မကောင်းပါဘူး။ ရနိုင်သမျှ Model အားလုံး Quota ပြည့်နေပါသည်။")
-                        st.info("💡 နောက်တစ်နာရီခန့် စောင့်ဆိုင်းပြီးမှ ပြန်လည်စမ်းသပ်ပေးပါခင်ဗျာ။")
+                        st.error("⚠️ Quota ပြည့်နေပါသည်။")
                 
         except Exception as e:
             st.error(f"Error: {e}")
     else:
-        st.warning("Sidebar တွင် API Key အရင်ထည့်ပေးပါ။")
+        st.warning("Sidebar တွင် API Key အရင်ထည့်ပေးပါ။")   
