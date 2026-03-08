@@ -42,23 +42,22 @@ with tab4:
         total = b_inch + (b_pe / 16)
         st.write(f"အချင်း: {total:.2f} လက်မ")
 
-# --- Tab 5: AI လက်ထောက် (All-Model Access System) ---
+# --- Tab 5: AI လက်ထောက် (Ultimate Multi-Model System) ---
 with tab5:
-    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Multi-Model)")
+    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Full Access)")
     api_key = st.sidebar.text_input("Gemini API Key ထည့်ပါ", type="password")
     
     if api_key:
         try:
             genai.configure(api_key=api_key)
             
-            # လူကြီးမင်းပေးထားတဲ့ စာရင်းထဲက အကောင်းဆုံးမော်ဒယ်များကို ဦးစားပေးအလိုက် စီထားပါတယ်
-            full_model_list = [
-                'gemini-3-flash-preview',      # အသစ်ဆုံး Model
-                'gemini-2.0-flash-lite',       # Quota သက်သာသော Model
-                'gemini-2.0-flash',            # အမြန်ဆုံး Model
-                'gemma-3-27b-it',              # Gemma Series
-                'gemini-1.5-flash-latest',     # Stable ဖြစ်သော Model
-                'gemini-pro-latest'            # Pro Version
+            # လူကြီးမင်းပေးထားသော စာရင်းထဲမှ အဓိက Model များအားလုံး
+            mega_model_list = [
+                'gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview',
+                'gemini-2.0-flash', 'gemini-2.0-flash-lite', 
+                'gemma-3-27b-it', 'gemma-3-12b-it', 'gemma-3-4b-it',
+                'gemini-1.5-flash-latest', 'gemini-pro-latest',
+                'gemini-2.5-flash', 'gemini-2.5-flash-lite'
             ]
             
             if "messages" not in st.session_state:
@@ -67,37 +66,35 @@ with tab5:
             for msg in st.session_state.messages:
                 with st.chat_message(msg["role"]): st.markdown(msg["content"])
             
-            if prompt := st.chat_input("မေးခွန်းမေးပါ..."):
+            if prompt := st.chat_input("ရွှေပန်းတိမ်ဆိုင်ရာ မေးခွန်းမေးပါ..."):
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"): st.markdown(prompt)
                 
                 with st.chat_message("assistant"):
                     response_text = ""
                     success = False
-                    tried_models = []
+                    active_model = ""
 
-                    # Model အားလုံးကို တစ်ခုပြီးတစ်ခု ပတ်စမ်းခြင်း
-                    for m_name in full_model_list:
-                        try:
-                            tried_models.append(m_name)
-                            model = genai.GenerativeModel(m_name)
-                            response = model.generate_content(prompt)
-                            response_text = response.text
-                            success = True
-                            break 
-                        except Exception:
-                            continue 
+                    # စာရင်းထဲရှိ Model အားလုံးကို တစ်ခုပြီးတစ်ခု စမ်းသပ်ခြင်း
+                    with st.spinner("အကောင်းဆုံး Model ကို ရှာဖွေနေပါသည်..."):
+                        for m_name in mega_model_list:
+                            try:
+                                model = genai.GenerativeModel(m_name)
+                                response = model.generate_content(prompt)
+                                response_text = response.text
+                                active_model = m_name
+                                success = True
+                                break 
+                            except Exception:
+                                continue 
                     
                     if success:
                         st.markdown(response_text)
                         st.session_state.messages.append({"role": "assistant", "content": response_text})
-                        # ဘယ် Model နဲ့ အောင်မြင်သွားလဲဆိုတာကို အောက်ခြေမှာ သေးသေးလေး ပြပေးထားပါမယ်
-                        st.caption(f"Used Model: {tried_models[-1]}")
+                        st.caption(f"✅ Active Model: {active_model}")
                     else:
-                        st.error("⚠️ စမ်းသပ်ခဲ့သော Model အားလုံး Quota ပြည့်နေပါသည်။")
-                        st.write("စမ်းသပ်ခဲ့သည့် Model များ -")
-                        st.json(tried_models)
-                        st.info("💡 အချိန်ခဏစောင့်ဆိုင်းခြင်း သို့မဟုတ် API Key အသစ်လဲလှယ်ခြင်းဖြင့် ပြန်လည်စမ်းသပ်ပါ။")
+                        st.error("⚠️ စိတ်မကောင်းပါဘူး။ ရနိုင်သမျှ Model အားလုံး Quota ပြည့်နေပါသည်။")
+                        st.info("💡 နောက်တစ်နာရီခန့် စောင့်ဆိုင်းပြီးမှ ပြန်လည်စမ်းသပ်ပေးပါခင်ဗျာ။")
                 
         except Exception as e:
             st.error(f"Error: {e}")
