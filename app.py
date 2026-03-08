@@ -42,59 +42,64 @@ with tab4:
         total = b_inch + (b_pe / 16)
         st.write(f"အချင်း: {total:.2f} လက်မ")
 
-# --- Tab 5: AI လက်ထောက် (Smart Model Switching System) ---
+# --- Tab 5: AI လက်ထောက် (All-Model Access System) ---
 with tab5:
-    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Smart Mode)")
+    st.subheader("🤖 ပန်းတိမ်လက်ထောက် AI (Multi-Model)")
     api_key = st.sidebar.text_input("Gemini API Key ထည့်ပါ", type="password")
     
     if api_key:
         try:
             genai.configure(api_key=api_key)
             
-            # အသုံးပြုမည့် Model စာရင်း (ဦးစားပေးအလိုက်)
-            available_models = [
-                'gemini-2.0-flash', 
-                'gemini-2.0-flash-lite', 
-                'gemini-1.5-flash-latest',
-                'gemini-pro-latest'
+            # လူကြီးမင်းပေးထားတဲ့ စာရင်းထဲက အကောင်းဆုံးမော်ဒယ်များကို ဦးစားပေးအလိုက် စီထားပါတယ်
+            full_model_list = [
+                'gemini-3-flash-preview',      # အသစ်ဆုံး Model
+                'gemini-2.0-flash-lite',       # Quota သက်သာသော Model
+                'gemini-2.0-flash',            # အမြန်ဆုံး Model
+                'gemma-3-27b-it',              # Gemma Series
+                'gemini-1.5-flash-latest',     # Stable ဖြစ်သော Model
+                'gemini-pro-latest'            # Pro Version
             ]
             
             if "messages" not in st.session_state:
                 st.session_state.messages = []
             
             for msg in st.session_state.messages:
-                with st.chat_message(msg["role"]):
-                    st.markdown(msg["content"])
+                with st.chat_message(msg["role"]): st.markdown(msg["content"])
             
-            if prompt := st.chat_input("ရွှေပန်းတိမ်ဆိုင်ရာ ဘာများမေးချင်ပါသလဲ?"):
+            if prompt := st.chat_input("မေးခွန်းမေးပါ..."):
                 st.session_state.messages.append({"role": "user", "content": prompt})
-                with st.chat_message("user"):
-                    st.markdown(prompt)
+                with st.chat_message("user"): st.markdown(prompt)
                 
                 with st.chat_message("assistant"):
                     response_text = ""
                     success = False
-                    
-                    # Model များကို တစ်ခုပြီးတစ်ခု စမ်းသပ်ခြင်း
-                    for model_name in available_models:
+                    tried_models = []
+
+                    # Model အားလုံးကို တစ်ခုပြီးတစ်ခု ပတ်စမ်းခြင်း
+                    for m_name in full_model_list:
                         try:
-                            model = genai.GenerativeModel(model_name)
+                            tried_models.append(m_name)
+                            model = genai.GenerativeModel(m_name)
                             response = model.generate_content(prompt)
                             response_text = response.text
                             success = True
-                            # အောင်မြင်သွားရင် loop ထဲက ထွက်မယ်
                             break 
-                        except Exception as e:
-                            # ဒီ Model မရရင် နောက်တစ်ခုကို ဆက်စမ်းမယ်
-                            continue
+                        except Exception:
+                            continue 
                     
                     if success:
                         st.markdown(response_text)
                         st.session_state.messages.append({"role": "assistant", "content": response_text})
+                        # ဘယ် Model နဲ့ အောင်မြင်သွားလဲဆိုတာကို အောက်ခြေမှာ သေးသေးလေး ပြပေးထားပါမယ်
+                        st.caption(f"Used Model: {tried_models[-1]}")
                     else:
-                        st.error("ရနိုင်သမျှ Model အားလုံး Quota ပြည့်နေပါသည်။ ခဏစောင့်ပြီးမှ ပြန်စမ်းပေးပါခင်ဗျာ။")
+                        st.error("⚠️ စမ်းသပ်ခဲ့သော Model အားလုံး Quota ပြည့်နေပါသည်။")
+                        st.write("စမ်းသပ်ခဲ့သည့် Model များ -")
+                        st.json(tried_models)
+                        st.info("💡 အချိန်ခဏစောင့်ဆိုင်းခြင်း သို့မဟုတ် API Key အသစ်လဲလှယ်ခြင်းဖြင့် ပြန်လည်စမ်းသပ်ပါ။")
                 
         except Exception as e:
-            st.error(f"Error ဖြစ်နေသည်: {e}")
+            st.error(f"Error: {e}")
     else:
         st.warning("Sidebar တွင် API Key အရင်ထည့်ပေးပါ။")
