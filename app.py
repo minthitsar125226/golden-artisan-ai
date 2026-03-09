@@ -8,16 +8,16 @@ st.set_page_config(page_title="The Golden Artisan", layout="wide")
 # --- CUSTOM CSS ---
 st.markdown("""
     <style>
-    /* မျက်နှာပြင် အပေါ်ပိုင်း ရွှေ့ခြင်း */
+    /* မျက်နှာပြင် အပေါ်ပိုင်း */
     .block-container { padding-top: 1rem; }
     
     .stApp { background-color: #000000; color: #ffffff; }
     [data-testid="stSidebar"] { background-color: #0a0a0a; border-right: 1px solid #d4af37; }
     
-    /* ခေါင်းစဉ်များ */
-    h1 { color: #d4af37 !important; margin-top: -20px; }
+    /* ခေါင်းစဉ်များကို သေးသွားစေရန် (font-size ချိန်ညှိခြင်း) */
+    h1 { color: #d4af37 !important; font-size: 22px !important; margin-top: -20px; }
     
-    /* Button များ (Sidebar အတွက်) */
+    /* Button များ */
     div.stButton > button {
         width: 100%;
         background-color: transparent;
@@ -25,6 +25,7 @@ st.markdown("""
         border: 1px solid #d4af37;
         margin-bottom: 5px;
         text-align: left;
+        font-size: 14px;
     }
     div.stButton > button:hover { background-color: #d4af37; color: black; }
     </style>
@@ -40,9 +41,9 @@ with st.sidebar:
         
     st.markdown("---")
     
-    # Session State ကို သုံးပြီး Tool ရွေးချယ်ခြင်း
     if 'page' not in st.session_state: st.session_state.page = None
 
+    # Icon များဖြင့် ခွဲထားခြင်း
     if st.button("💰 ရွှေတွက်ရန်"): st.session_state.page = "ရွှေတွက်"
     if st.button("📐 အချိုးအစား"): st.session_state.page = "အချိုး"
     if st.button("📈 ရွှေဈေး"): st.session_state.page = "ရွှေဈေး"
@@ -50,14 +51,8 @@ with st.sidebar:
     if st.button("🤖 အမရာ"): st.session_state.page = "အမရာ"
 
 # --- Main Screen ---
-# ခေါင်းစဉ်ကို အပေါ်ဆုံးထိ တင်ထားပေးသည်
-if st.session_state.page == "ရွှေတွက်":
-    st.header("💰 ရွှေတွက်ရန်")
-elif st.session_state.page == "အချိုး":
-    st.header("📐 အချိုးအစားတွက်ရန်")
-elif st.session_state.page == "ရွှေဈေး":
-    st.header("📈 ရွှေဈေးနှုန်း")
-elif st.session_state.page == "လက်စွပ်":
-    st.header("💍 လက်စွပ်အတိုင်းအတာ")
-elif st.session_state.page == "အမရာ":
-    st.header("🤖 အမရာ AI Assistant")
+if st.session_state.page:
+    # မျက်နှာပြင် ခေါင်းစဉ်ကို သေးငယ်ပြီး တည်ငြိမ်စွာ ပြသခြင်း
+    st.header(f"{st.session_state.page}")
+
+#
