@@ -5,53 +5,53 @@ from PIL import Image
 # Page Config
 st.set_page_config(page_title="The Golden Artisan", layout="centered")
 
-# --- CUSTOM CSS ---
+# --- CUSTOM CSS (အနက်ရောင်နောက်ခံ၊ ရွှေရောင် Theme) ---
 st.markdown("""
     <style>
-    .stApp { background-color: #000000; color: #ffffff; }
+    .stApp { background-color: #000000; color: #e0e0e0; }
     
-    /* Footer */
-    .footer {
-        position: fixed; left: 0; bottom: 80px; width: 100%;
-        text-align: center; color: #d4af37; font-size: 11px;
+    /* Sidebar ကို အနက်ရောင်ထားခြင်း */
+    [data-testid="stSidebar"] { 
+        background-color: #0a0a0a; 
+        border-right: 1px solid #d4af37;
     }
+    
+    /* စာသားများနှင့် Header */
+    h1, h2, h3 { color: #d4af37 !important; text-align: center; }
+    
+    /* Sidebar အတွင်းမှ ခေါင်းစဉ်များ */
+    .sidebar-text { color: #d4af37; font-size: 14px; margin-top: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar (အလုပ်လုပ်ရန် လိုအပ်သည့် Setting များအတွက်)
+# --- Sidebar အတွင်းတွင် Logo နှင့် Tool များထည့်ခြင်း ---
 with st.sidebar:
-    st.title("Settings")
-    st.write("အခြားဆက်တင်များ")
-
-# Logo ပြသခြင်း
-try:
-    logo = Image.open("logo.png")
-    st.image(logo, use_container_width=True)
-except:
-    st.write("💎")
-
-# --- Bottom Navigation (အဓိက Menu) ---
-selected = option_menu(
-    None, ["ရွှေတွက်", "အချိုး", "ရွှေဈေး", "လက်စွပ်", "အမရာ"],
-    icons=['calculator', 'percent', 'graph-up', 'gem', 'robot'],
-    orientation="horizontal",
-    styles={
-        "container": {"position": "fixed", "bottom": "0", "width": "100%", "background-color": "#1a1a1a"},
-        "nav-link-selected": {"background-color": "#d4af37", "color": "black"},
-    }
-)
+    # Logo ကို Sidebar အပေါ်ဆုံးတွင် ခပ်သေးသေး ပြခြင်း
+    try:
+        logo = Image.open("logo.png")
+        st.image(logo, width=100) # width 100 ဖြင့် ပိုသေးသွားအောင် ပြုလုပ်ခြင်း
+    except:
+        st.write("💎")
+        
+    st.markdown("---")
+    
+    # Sidebar တွင် Icon ဖြင့် Tool များ ပြခြင်း
+    selected = option_menu(
+        "Menu", 
+        ["ရွှေတွက်", "အချိုး", "ရွှေဈေး", "လက်စွပ်", "အမရာ"],
+        icons=['calculator', 'percent', 'graph-up', 'gem', 'robot'],
+        menu_icon="cast", default_index=0,
+        styles={
+            "nav-link": {"color": "#e0e0e0"},
+            "nav-link-selected": {"background-color": "#d4af37", "color": "black"},
+        }
+    )
 
 # --- Navigation Logic ---
 if selected == "ရွှေတွက်":
     st.header("💰 ရွှေတွက်ရန်")
-elif selected == "အချိုး":
-    st.header("📐 အချိုးအစားတွက်ရန်")
-elif selected == "ရွှေဈေး":
-    st.header("📈 ရွှေဈေးနှုန်း")
-elif selected == "လက်စွပ်":
-    st.header("💍 လက်စွပ်အတိုင်း")
 elif selected == "အမရာ":
     st.header("🤖 အမရာ AI")
 
-# Footer Credit
-st.markdown('<div class="footer">App by MinThitSarAung</div>', unsafe_allow_html=True)
+# အောက်ခြေ Brand Credit
+st.markdown('<div style="text-align: center; color: #d4af37; font-size: 10px; margin-top: 50px;">App by MinThitSarAung</div>', unsafe_allow_html=True)
