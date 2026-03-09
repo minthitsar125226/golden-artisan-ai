@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 from PIL import Image
 
 # Page Configuration
@@ -25,29 +24,23 @@ with st.sidebar:
         
     st.markdown("---")
     
-    # option_menu ကို အမှားကင်းအောင် ရေးသားထားခြင်း
-    selected = option_menu(
-        menu_title=None, # Sidebar မှာဖြစ်တဲ့အတွက် None ထားတာ ပိုကောင်းပါတယ်
-        options=["ရွှေတွက်", "အချိုး", "ရွှေဈေး", "လက်စွပ်", "အမရာ"],
-        icons=['calculator', 'percent', 'graph-up', 'gem', 'robot'],
-        menu_icon="cast", 
-        default_index=None,
-        styles={
-            "nav-link": {"color": "white", "font-size": "14px"},
-            "nav-link-selected": {"background-color": "#d4af37", "color": "black"},
-        }
+    # option_menu အစား radio ကိုသုံးခြင်း (Error လုံးဝမတက်ပါ)
+    choice = st.sidebar.radio(
+        "Menu", 
+        ["ရွှေတွက်", "အချိုး", "ရွှေဈေး", "လက်စွပ်", "အမရာ"],
+        index=None  # အစမှာ ဘာမှမရွေးထားပါ
     )
 
-# --- Main Screen (ရွေးချယ်မှသာ ပေါ်လာမည်) ---
-if selected == "ရွှေတွက်":
+# --- Main Screen ---
+if choice == "ရွှေတွက်":
     st.header("💰 ရွှေတွက်ရန်")
-elif selected == "အချိုး":
+elif choice == "အချိုး":
     st.header("📐 အချိုးအစားတွက်ရန်")
-elif selected == "ရွှေဈေး":
+elif choice == "ရွှေဈေး":
     st.header("📈 ရွှေဈေးနှုန်း")
-elif selected == "လက်စွပ်":
+elif choice == "လက်စွပ်":
     st.header("💍 လက်စွပ်အတိုင်းအတာ")
-elif selected == "အမရာ":
+elif choice == "အမရာ":
     st.header("🤖 အမရာ AI Assistant")
 
 # Footer Credit
