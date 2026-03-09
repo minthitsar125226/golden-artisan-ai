@@ -1,71 +1,58 @@
 import streamlit as st
-import google.generativeai as genai
 from streamlit_option_menu import option_menu
 from PIL import Image
 
-# Page Config
+# Page Configuration
 st.set_page_config(page_title="The Golden Artisan", layout="centered")
 
 # --- CUSTOM CSS ---
 st.markdown("""
     <style>
-    .stApp { background-color: #000000; color: #e0e0e0; }
-    
-    /* Sidebar ကို ဖျောက်ခြင်း */
+    .stApp { background-color: #000000; color: #ffffff; }
     [data-testid="stSidebar"] { display: none; }
     
-    /* ခေါင်းစဉ်များ */
-    h1, h2, h3 { color: #d4af37 !important; font-size: 20px !important; text-align: center; }
-    
-    /* Footer */
-    .footer {
-        position: fixed; left: 0; bottom: 60px; width: 100%;
-        text-align: center; color: #d4af37; font-size: 12px;
+    /* Card Design */
+    .custom-card {
+        background-color: #1a1a1a;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #333;
+        text-align: center;
     }
+    .card-title { color: #d4af37; font-size: 13px; margin-bottom: 5px; }
+    .card-value { color: #ffffff; font-size: 18px; font-weight: bold; }
+    
+    /* Footer Credit */
+    .footer { text-align: center; color: #d4af37; font-size: 11px; margin-top: 20px; }
     </style>
 """, unsafe_allow_html=True)
 
-# Logo ပြသခြင်း
+# Logo
 try:
     logo = Image.open("logo.png")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2: st.image(logo, use_container_width=True)
+    st.image(logo, width=150)
 except:
     st.write("💎")
 
-# --- Bottom Navigation Menu ---
+# --- Content ---
+st.subheader("Market Prices")
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown('<div class="custom-card"><div class="card-title">Gold (Ah Khout)</div><div class="card-value">10,750,000</div></div>', unsafe_allow_html=True)
+with col2:
+    st.markdown('<div class="custom-card"><div class="card-title">Gold (15 Pae Yae)</div><div class="card-value">10,100,000</div></div>', unsafe_allow_html=True)
+
+# --- Bottom Navigation (Facebook Style) ---
 selected = option_menu(
-    None, ["တွက်စက်", "အချိုး", "ဈေးနှုန်း", "အမရာ"],
-    icons=['calculator', 'percent', 'graph-up', 'robot'],
-    menu_icon="cast", default_index=0, orientation="horizontal",
+    None, ["Home", "Calendar", "Tips", "3D", "Settings"],
+    icons=['house', 'calendar-date', 'gift', 'box', 'gear'],
+    orientation="horizontal",
     styles={
-        "nav-link": {"font-size": "14px", "color": "#ffffff"},
+        "container": {"position": "fixed", "bottom": "0", "width": "100%", "background-color": "#1a1a1a"},
         "nav-link-selected": {"background-color": "#d4af37", "color": "black"},
     }
 )
-
-# --- Main Logic ---
-if selected == "အမရာ":
-    st.header("🤖 အမရာ (AI Assistant)")
-    try:
-        api_key = st.secrets["GEMINI_API_KEY"]
-        genai.configure(api_key=api_key)
-        
-        if "messages" not in st.session_state: st.session_state.messages = []
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]): st.markdown(msg["content"])
-            
-        if prompt := st.chat_input("မေးခွန်းမေးပါ..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"): st.markdown(prompt)
-            
-            with st.chat_message("assistant"):
-                model = genai.GenerativeModel('gemini-2.0-flash')
-                response = model.generate_content(prompt)
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-    except:
-        st.error("API Key ချိတ်ဆက်မှု Error ဖြစ်နေပါသည်။")
 
 # Footer
 st.markdown('<div class="footer">App by MinThitSarAung</div>', unsafe_allow_html=True)
